@@ -17,10 +17,11 @@ using System.Windows.Forms;
 using System.Xml;
 using Tanguy.WinForm.Utilities.DelegatesHelpers;
 using XrmToolBox.Extensibility;
+using XrmToolBox.Extensibility.Interfaces;
 
 namespace MsCrmTools.ViewLayoutReplicator
 {
-    public partial class ViewLayoutReplicator : PluginControlBase
+    public partial class ViewLayoutReplicator : PluginControlBase, IGitHubPlugin, IHelpPlugin
     {
         private List<EntityMetadata> entitiesCache;
         private ListViewItem[] listViewItemsCache;
@@ -512,5 +513,9 @@ namespace MsCrmTools.ViewLayoutReplicator
                 }
             });
         }
+
+        public string RepositoryName { get { return "MscrmTools.ViewLayoutReplicator"; } }
+        public string UserName { get { return "MscrmTools"; } }
+        public string HelpUrl { get { return "https://github.com/MscrmTools/MsCrmTools.ViewLayoutReplicator/wiki"; } }
     }
 }
