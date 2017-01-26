@@ -25,6 +25,8 @@ namespace MsCrmTools.ViewLayoutReplicator
     {
         private List<EntityMetadata> entitiesCache;
         private ListViewItem[] listViewItemsCache;
+        private List<ListViewItem> sourceViewsItems;
+        private List<ListViewItem> targetViewsItems;
 
         #region Constructor
 
@@ -201,6 +203,9 @@ namespace MsCrmTools.ViewLayoutReplicator
             List<Entity> viewsList = ViewHelper.RetrieveViews(entityLogicalName, entitiesCache, Service);
             viewsList.AddRange(ViewHelper.RetrieveUserViews(entityLogicalName, entitiesCache, Service));
 
+            sourceViewsItems = new List<ListViewItem>();
+            targetViewsItems = new List<ListViewItem>();
+
             foreach (Entity view in viewsList)
             {
                 bool display = true;
@@ -277,7 +282,9 @@ namespace MsCrmTools.ViewLayoutReplicator
                 {
                     // Add view to each list of views (source and target)
                     ListViewItem clonedItem = (ListViewItem)item.Clone();
-                    ListViewDelegates.AddItem(lvSourceViews, item);
+
+                    sourceViewsItems.Add(item);
+                    //ListViewDelegates.AddItem(lvSourceViews, item);
 
                     if (view.Contains("iscustomizable") && ((BooleanManagedProperty)view["iscustomizable"]).Value == false
                         && view.Contains("ismanaged") && (bool)view["ismanaged"])
@@ -286,7 +293,8 @@ namespace MsCrmTools.ViewLayoutReplicator
                         clonedItem.ToolTipText = "This managed view has not been defined as customizable";
                     }
 
-                    ListViewDelegates.AddItem(lvTargetViews, clonedItem);
+                    targetViewsItems.Add(clonedItem);
+                    //ListViewDelegates.AddItem(lvTargetViews, clonedItem);
                 }
             }
         }
@@ -301,13 +309,18 @@ namespace MsCrmTools.ViewLayoutReplicator
             {
                 MessageBox.Show(this, "An error occured: " + e.Error.Message, "Error", MessageBoxButtons.OK,
                                 MessageBoxIcon.Error);
+                return;
             }
 
-            if (lvSourceViews.Items.Count == 0)
+            if (sourceViewsItems.Count == 0)
             {
                 MessageBox.Show(this, "This entity does not contain any view", "Warning", MessageBoxButtons.OK,
                                 MessageBoxIcon.Warning);
+                return;
             }
+
+            lvSourceViews.Items.AddRange(sourceViewsItems.ToArray());
+            lvTargetViews.Items.AddRange(targetViewsItems.ToArray());
         }
 
         private void lvEntities_SelectedIndexChanged(object sender, EventArgs e)
@@ -514,8 +527,32 @@ namespace MsCrmTools.ViewLayoutReplicator
             });
         }
 
+        private void chkShowSystem_CheckedChanged(object sender, EventArgs e)
+        {
+            FilterTargetViews(chkShowSystem.Checked, chkShowUser.Checked);
+         }
+
+        private void chkShowUser_CheckedChanged(object sender, EventArgs e)
+        {
+            FilterTargetViews(chkShowSystem.Checked, chkShowUser.Checked);
+        }
+
+        private void FilterTargetViews(bool showSystem, bool showUser)
+        {
+            var filteredViews = targetViewsItems.Where(v =>
+                ((Entity) v.Tag).LogicalName == "savedquery" && showSystem
+                || ((Entity) v.Tag).LogicalName == "userquery" && showUser
+                );
+
+            lvTargetViews.Items.Clear();
+
+            lvTargetViews.Items.AddRange(filteredViews.ToArray());
+        }
+
         public string RepositoryName { get { return "MscrmTools.ViewLayoutReplicator"; } }
         public string UserName { get { return "MscrmTools"; } }
         public string HelpUrl { get { return "https://github.com/MscrmTools/MsCrmTools.ViewLayoutReplicator/wiki"; } }
+
+       
     }
 }
