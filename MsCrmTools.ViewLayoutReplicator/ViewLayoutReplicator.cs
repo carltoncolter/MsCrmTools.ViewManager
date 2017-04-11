@@ -146,7 +146,7 @@ namespace MsCrmTools.ViewLayoutReplicator
                 Work = (bw, evt) =>
                 {
                     var args = (object[])evt.Argument;
-                    evt.Result = ViewHelper.PropagateLayout((Entity)args[0], (List<Entity>)args[1], (bool)args[2], Service);
+                    evt.Result = ViewHelper.PropagateLayout((ViewDefinition)args[0], (List<ViewDefinition>)args[1], (bool)args[2], Service);
                 },
                 PostWorkCallBack = evt =>
                 {
