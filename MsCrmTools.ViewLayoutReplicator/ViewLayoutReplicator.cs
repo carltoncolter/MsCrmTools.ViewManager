@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using Tanguy.WinForm.Utilities.DelegatesHelpers;
@@ -112,8 +113,31 @@ namespace MsCrmTools.ViewLayoutReplicator
             tsbSaveViews.Enabled = false;
             tsbLoadEntities.Enabled = false;
 
-            var targetViews = lvTargetViews.CheckedItems.Cast<ListViewItem>().Select(i => (Entity)i.Tag).ToList();
-            var sourceView = (Entity)lvSourceViews.SelectedItems.Cast<ListViewItem>().First().Tag;
+            var targetViews = lvTargetViews.CheckedItems.Cast<ListViewItem>().Select(i => new ViewDefinition((Entity)i.Tag)).ToList();
+            var sourceView = new ViewDefinition((Entity)lvSourceViews.SelectedItems.Cast<ListViewItem>().First().Tag);
+
+            if (sourceView.LayoutXml.Contains(".")
+                && targetViews.Any(tv => tv.Type == ViewHelper.VIEW_QUICKFIND)
+                && new Version(ConnectionDetail.OrganizationVersion) >= new Version(8, 2, 0, 0))
+            {
+                var message = "The source view contains related entity attribute and you selected the Quick Search view as a target. This is not allowed in Microsoft Dynamics 365";
+                MessageBox.Show(this, message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (targetViews.Any(tv => tv.Type == ViewHelper.VIEW_SEARCH))
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("You selected Lookup View as a target.");
+                sb.AppendLine("Please notice that the layout of a Lookup view should be the primary field of the entity to avoid strange behavior when working with lookups.");
+                sb.AppendLine();
+                sb.AppendLine("Are your sure you want to update all selected view(s), including the Lookup view?");
+                if (DialogResult.No ==
+                    MessageBox.Show(this, sb.ToString(), "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question))
+                {
+                    return;
+                }
+            }
 
             WorkAsync(new WorkAsyncInfo
             {
@@ -393,7 +417,7 @@ namespace MsCrmTools.ViewLayoutReplicator
                                                                                       fetchXml, Service);
                             headers.Add(header);
 
-                            if (string.IsNullOrEmpty(item.Text))//item.SubItems.Add("preview");
+                            if (string.IsNullOrEmpty(item.Text))
                                 item.Text = columnNode.Attributes["width"].Value + "px";
                             else
                                 item.SubItems.Add(columnNode.Attributes["width"].Value + "px");
