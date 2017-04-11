@@ -35,6 +35,8 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
                     XmlNode aliasNode = fetchDoc.SelectSingleNode("//link-entity[@alias='" + data[0] + "']");
                     if (aliasNode != null)
                     {
+                        var lookupAmd = emd.Attributes.First(a => a.LogicalName == aliasNode.Attributes["to"].Value);
+
                         EntityMetadata relatedEmd = RetrieveEntity(aliasNode.Attributes["name"].Value, oService);
 
                         AttributeMetadata relatedamd = (from attr in relatedEmd.Attributes
@@ -43,10 +45,10 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
 
                         if (relatedamd == null)
                         {
-                            return string.Format("(unknown:{0})", attributeName);
+                            return $"(unknown:{attributeName})";
                         }
 
-                        return relatedamd.DisplayName.UserLocalizedLabel.Label;
+                        return $"{relatedamd.DisplayName.UserLocalizedLabel.Label} ({lookupAmd.DisplayName.UserLocalizedLabel.Label})";
                     }
                 }
 
