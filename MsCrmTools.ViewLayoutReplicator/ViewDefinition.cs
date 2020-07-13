@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Xrm.Sdk;
+﻿using Microsoft.Xrm.Sdk;
+using System;
 
 namespace MsCrmTools.ViewLayoutReplicator
 {
@@ -10,21 +10,6 @@ namespace MsCrmTools.ViewLayoutReplicator
         public ViewDefinition(Entity viewEntity)
         {
             record = viewEntity;
-        }
-
-        public Guid Id => record.Id;
-
-        public string Name => record.GetAttributeValue<string>("name");
-
-        public int Type => record.GetAttributeValue<int>("querytype");
-
-        public string LayoutXml
-        {
-            get
-            {
-                return record.GetAttributeValue<string>("layoutxml");
-            }
-            set { record["layoutxml"] = value; }
         }
 
         public string FetchXml
@@ -39,6 +24,22 @@ namespace MsCrmTools.ViewLayoutReplicator
             }
         }
 
+        public Guid Id => record.Id;
+
+        public Entity InnerRecord => record;
+
+        public string LayoutXml
+        {
+            get
+            {
+                return record.GetAttributeValue<string>("layoutxml");
+            }
+            set { record["layoutxml"] = value; }
+        }
+
         public string LogicalName => record.LogicalName;
+        public string Name => record.GetAttributeValue<string>("name");
+
+        public int Type => record.GetAttributeValue<int>("querytype");
     }
 }

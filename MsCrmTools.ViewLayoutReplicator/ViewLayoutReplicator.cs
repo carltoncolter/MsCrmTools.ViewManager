@@ -153,7 +153,7 @@ namespace MsCrmTools.ViewLayoutReplicator
                     if (((List<Tuple<string, string>>)evt.Result).Count > 0)
                     {
                         var errorDialog = new ErrorList((List<Tuple<string, string>>)evt.Result);
-                        errorDialog.ShowDialog();
+                        errorDialog.ShowDialog(this);
                     }
 
                     tsbPublishEntity.Enabled = true;
@@ -473,6 +473,34 @@ namespace MsCrmTools.ViewLayoutReplicator
 
         #endregion ListViews Handlers
 
+        public string HelpUrl { get { return "https://github.com/MscrmTools/MsCrmTools.ViewLayoutReplicator/wiki"; } }
+
+        public string RepositoryName { get { return "MscrmTools.ViewLayoutReplicator"; } }
+
+        public string UserName { get { return "MscrmTools"; } }
+
+        private void chkShowSystem_CheckedChanged(object sender, EventArgs e)
+        {
+            FilterTargetViews(chkShowSystem.Checked, chkShowUser.Checked);
+        }
+
+        private void chkShowUser_CheckedChanged(object sender, EventArgs e)
+        {
+            FilterTargetViews(chkShowSystem.Checked, chkShowUser.Checked);
+        }
+
+        private void FilterTargetViews(bool showSystem, bool showUser)
+        {
+            var filteredViews = targetViewsItems.Where(v =>
+                ((Entity)v.Tag).LogicalName == "savedquery" && showSystem
+                || ((Entity)v.Tag).LogicalName == "userquery" && showUser
+                );
+
+            lvTargetViews.Items.Clear();
+
+            lvTargetViews.Items.AddRange(filteredViews.ToArray());
+        }
+
         private void LvEntitiesColumnClick(object sender, ColumnClickEventArgs e)
         {
             lvEntities.Sorting = lvEntities.Sorting == SortOrder.Ascending ? SortOrder.Descending : SortOrder.Ascending;
@@ -550,33 +578,5 @@ namespace MsCrmTools.ViewLayoutReplicator
                 }
             });
         }
-
-        private void chkShowSystem_CheckedChanged(object sender, EventArgs e)
-        {
-            FilterTargetViews(chkShowSystem.Checked, chkShowUser.Checked);
-         }
-
-        private void chkShowUser_CheckedChanged(object sender, EventArgs e)
-        {
-            FilterTargetViews(chkShowSystem.Checked, chkShowUser.Checked);
-        }
-
-        private void FilterTargetViews(bool showSystem, bool showUser)
-        {
-            var filteredViews = targetViewsItems.Where(v =>
-                ((Entity) v.Tag).LogicalName == "savedquery" && showSystem
-                || ((Entity) v.Tag).LogicalName == "userquery" && showUser
-                );
-
-            lvTargetViews.Items.Clear();
-
-            lvTargetViews.Items.AddRange(filteredViews.ToArray());
-        }
-
-        public string RepositoryName { get { return "MscrmTools.ViewLayoutReplicator"; } }
-        public string UserName { get { return "MscrmTools"; } }
-        public string HelpUrl { get { return "https://github.com/MscrmTools/MsCrmTools.ViewLayoutReplicator/wiki"; } }
-
-       
     }
 }

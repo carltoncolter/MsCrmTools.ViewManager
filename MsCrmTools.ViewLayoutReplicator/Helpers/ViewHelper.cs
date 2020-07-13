@@ -90,7 +90,7 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
 
                         targetView.LayoutXml = targetLayout.OuterXml;
 
-                        #endregion
+                        #endregion Replace target view cells by source view cells
 
                         // Retrieve target fetch data
                         if (!string.IsNullOrEmpty(targetView.FetchXml))
@@ -122,7 +122,7 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
                                     targetFetchDoc.SelectSingleNode("fetch/entity").AppendChild(attrNodeToAdd);
                                 }
                             }
-                            
+
                             if (includeSorting)
                             {
                                 #region Copy Sorting settings to target views
@@ -144,11 +144,11 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
                                     targetFetchDoc.SelectSingleNode("fetch/entity").AppendChild(orderNodeToAdd);
                                 }
 
-                                #endregion
+                                #endregion Copy Sorting settings to target views
                             }
 
                             #region Replicate link entities information
-                                
+
                             // Retrieve source fetch data
                             if (!string.IsNullOrEmpty(sourceView.FetchXml))
                             {
@@ -284,28 +284,24 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
 
                             targetView.FetchXml = targetFetchDoc.OuterXml;
 
-                            #endregion
+                            #endregion Replicate link entities information
                         }
 
                         #region Save target view
 
                         try
                         {
-                            var viewToUpdate = new Entity(targetView.LogicalName)
-                            {
-                                Id = targetView.Id
-                            };
-                            viewToUpdate["fetchxml"] = targetView.FetchXml;
-                            viewToUpdate["layoutxml"] = targetView.LayoutXml;
+                            targetView.InnerRecord.Attributes.Remove("statecode");
+                            targetView.InnerRecord.Attributes.Remove("statuscode");
 
-                            service.Update(viewToUpdate);
+                            service.Update(targetView.InnerRecord);
                         }
                         catch (Exception error)
                         {
                             errors.Add(new Tuple<string, string>(targetView.Name, error.Message));
                         }
 
-                        #endregion
+                        #endregion Save target view
                     }
                 }
 
@@ -333,10 +329,10 @@ namespace MsCrmTools.ViewLayoutReplicator.Helpers
                 EntityMetadata currentEmd = entitiesCache.Find(emd => emd.LogicalName == entityLogicalName);
 
                 QueryByAttribute qba = new QueryByAttribute
-                                           {
-                                               EntityName = "savedquery",
-                                               ColumnSet = new ColumnSet(true)
-                                           };
+                {
+                    EntityName = "savedquery",
+                    ColumnSet = new ColumnSet(true)
+                };
 
                 qba.Attributes.Add("returnedtypecode");
                 // ReSharper disable once PossibleInvalidOperationException
