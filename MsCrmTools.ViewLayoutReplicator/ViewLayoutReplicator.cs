@@ -118,7 +118,8 @@ namespace MsCrmTools.ViewLayoutReplicator
 
             if (sourceView.LayoutXml.Contains(".")
                 && targetViews.Any(tv => tv.Type == ViewHelper.VIEW_QUICKFIND)
-                && new Version(ConnectionDetail.OrganizationVersion) >= new Version(8, 2, 0, 0))
+                && new Version(ConnectionDetail.OrganizationVersion) >= new Version(8, 2, 0, 0)
+                && new Version(ConnectionDetail.OrganizationVersion) < new Version(9, 1, 0, 0))
             {
                 var message = "The source view contains related entity attribute and you selected the Quick Search view as a target. This is not allowed in Microsoft Dynamics 365";
                 MessageBox.Show(this, message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
