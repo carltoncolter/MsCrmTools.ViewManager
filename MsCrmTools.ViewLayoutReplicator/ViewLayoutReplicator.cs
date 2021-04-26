@@ -309,7 +309,6 @@ namespace MsCrmTools.ViewLayoutReplicator
                     ListViewItem clonedItem = (ListViewItem)item.Clone();
 
                     sourceViewsItems.Add(item);
-                    //ListViewDelegates.AddItem(lvSourceViews, item);
 
                     if (view.Contains("iscustomizable") && ((BooleanManagedProperty)view["iscustomizable"]).Value == false
                         && view.Contains("ismanaged") && (bool)view["ismanaged"])
@@ -319,7 +318,6 @@ namespace MsCrmTools.ViewLayoutReplicator
                     }
 
                     targetViewsItems.Add(clonedItem);
-                    //ListViewDelegates.AddItem(lvTargetViews, clonedItem);
                 }
             }
         }
@@ -394,10 +392,9 @@ namespace MsCrmTools.ViewLayoutReplicator
                         string fetchXml = currentSelectedView.Contains("fetchxml")
                                               ? currentSelectedView["fetchxml"].ToString()
                                               : string.Empty;
-                        string currentEntityDisplayName = ListViewDelegates.GetSelectedItems(lvEntities)[0].Text;
-
-                        EntityMetadata currentEmd = entitiesCache.Find(
-                            emd => emd.DisplayName.UserLocalizedLabel.Label == currentEntityDisplayName);
+                        var selectedItem = ListViewDelegates.GetSelectedItems(lvEntities)[0];
+                        string currentEntityLogicalName = selectedItem.SubItems[1].Text;
+                        EntityMetadata currentEmd = entitiesCache.Find(emd => emd.LogicalName == currentEntityLogicalName);
 
                         XmlDocument layoutDoc = new XmlDocument();
                         layoutDoc.LoadXml(layoutXml);
