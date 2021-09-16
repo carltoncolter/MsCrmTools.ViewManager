@@ -1,2 +1,5 @@
-# MsCrmTools.ViewLayoutReplicator
-XrmToolBox plugin to apply same layout to multiple views of the same entity in a single operation
+# MsCrmTools.ViewManager
+XrmToolBox plugin to modify the settings of multiple views
+
+# WIP
+This is awork in progress
